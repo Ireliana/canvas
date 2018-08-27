@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const canvas = {
+            init() {
+                this.el = document.createElement('canvas');
+                document.body.appendChild(this.el);
+                this.ctx = this.el.getContext('2d');
+                this.resize();
+                document.addEventListener('resize', this.resize);
+                return this.ctx;
+            },
+            onResize(cb) {
+                this.resizeCallback = cb;
+            },
+            resize() {
+                this.width = this.el.width = window.innerWidth * 2;
+                this.height = this.el.height = window.innerHeight * 2;
+                this.el.style.width = this.el.width * 0.5 + 'px';
+                this.el.style.height = this.el.height * 0.5 + 'px';
+                this.ctx.scale(2, 2);
+                this.resizeCallback && this.resizeCallback();
+            },
+            run(cb) {
+                window.requestAnimationFrame(() => {
+                    this.run(cb);
+                })
+                cb(this.ctx);
+            }
+        }
+
+        const ctx = canvas.init();
+
+        class swingBall {
+            constructor(type, x, angle = 45) {
+                this.x = x;
+                this.type = type;
+                this.angle = angle;
+                this.speed = 1;
+                this.limitAngle = angle;
+            }
+            draw(t) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.translate(this.x, 0);
+                ctx.lineWidth = 4;
+                ctx.fillStyle = '#071635';
+                ctx.strokeStyle = '#071635';
+                if(this.type === 'linear'){
+                    if(Math.abs(this.angle) >= this.limitAngle){
+                        this.speed *= -1;
+                    }
+                    this.angle += this.speed;
+                    ctx.rotate(this.angle * Math.PI/180);
+                }else{
+                    ctx.rotate(Math.cos(t* Math.PI /180) * this.limitAngle * Math.PI / 180);
+                }
+                ctx.arc(0, 200, 35, 0, 2 * Math.PI);
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, 200);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        let balls = []; 
+
+        function init(){
+            balls = [];
+            balls.push(new swingBall('linear',window.innerWidth*0.3),new swingBall('',window.innerWidth * 0.7));
+        }
+
+        init();
+        let t = 0;
+        canvas.run((ctx)=>{
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            balls.forEach((ball)=>{
+                ball.draw(t);
+                t += 1;
+            })
+        })
+        canvas.onResize(init);
+    </script>
+</body>
+
+</html>
