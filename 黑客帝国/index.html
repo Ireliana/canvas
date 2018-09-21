@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+	<style>
+		canvas {
+			width: 600px;
+			height: 600px;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="cnv" width="600" height="600"></canvas>
+	<script>
+		window.onload = function () {
+			var cnv = document.getElementById('cnv');
+			var ctx = cnv.getContext('2d');
+			var W = cnv.width;
+			var H = cnv.height;
+			var fontColor = '#33ff33';
+			var bc = 'rgba(0,0,0,.1)';
+			var originStr = "0123456789qwertyuiopasdfghjklzxcvbnm,./;'[]QWERTYUIOP{}ASDFGHJHJKL:ZXCVBBNM<>?";
+			var fontSize = 16;
+			var columns = Math.floor(W / fontSize);
+			var row = [];
+
+			for (var i = 0; i < columns; i++) {
+				row[i] = 1;
+			}
+			draw();
+			// var time = new Date().getTime();
+
+			function draw() {
+				// var nTime = new Date().getTime();
+				// if(nTime - time < 1000){
+				// 	requestAnimationFrame(draw);
+				// 	return;
+				// }
+				// time = nTime;
+				ctx.fillStyle = bc;
+				ctx.fillRect(0, 0, cnv.width, cnv.height);
+				for (var i = 0; i < columns; i++) {
+					var text = originStr[Math.floor(Math.random() * originStr.length)];
+					ctx.fillStyle = fontColor;
+					ctx.font = fontSize + 'px arial';
+					ctx.fillText(text, i * 16, row[i] * 16);
+					row[i]++;
+
+					if (row[i] * 16 >= H && Math.random() > 0.94) {
+						row[i] = 1;
+					}
+				}
+				requestAnimationFrame(draw);
+			}
+
+		}
+	</script>
+</body>
+
+</html>
