@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title></title>
+	<style>
+		canvas {
+			width: 600px;
+			height: 600px;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="cnv" width="600" height="600"></canvas>
+	<script>
+		window.onload = function () {
+			var cnv = document.getElementById("cnv");
+			var ctx = cnv.getContext('2d');
+			var W = cnv.width;
+			var H = cnv.height;
+			var gridX = gridY = 7;
+			var colors = [
+				'#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
+				'#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50',
+				'#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800',
+				'#FF5722'
+			];
+			var balls = [];
+			var text = 'HELLO';
+			ctx.textAlign = 'center';
+			ctx.textBaseLine = 'center';
+			ctx.font = '100px arial';
+			ctx.fillStyle = 'lightSkyBlue';
+			ctx.fillText(text, W / 2, H / 2);
+			var imgData = ctx.getImageData(0, 0, W, H).data;
+			var data_32 = new Uint32Array(imgData.buffer);
+			for (var i = 0; i < H; i += gridY) {
+				for (var j = 0; j < W; j += gridX) {
+					if (data_32[i * W + j]) {
+						createBall(j, i);
+					}
+				}
+			}
+			drawBall();
+
+			function createBall(x, y, radius = 5) {
+				var colorIndex = Math.floor(Math.random() * colors.length);
+				balls.push({
+					x,
+					y,
+					radius,
+					color: colors[colorIndex],
+					va: Math.random() ,
+					vs: Math.random() ,
+					a: Math.random(),
+					t: Math.random() * 100,
+				})
+			}
+			var time = new Date().getTime();
+
+			function drawBall() {
+		
+				ctx.clearRect(0, 0, cnv.width, cnv.height);
+				balls.map(function (ball) {
+					ctx.save();
+					ctx.beginPath();
+				
+					ball.t++;
+					ball.a = Math.abs(Math.sin(ball.t * Math.PI / 180)) + 0.1;
+					ctx.globalAlpha = ball.a;
+			
+					var r = Math.abs(ball.radius * Math.cos(ball.t * Math.PI / 180)) + 1;
+					ctx.arc(ball.x, ball.y, r, 0, 2 * Math.PI, false);
+				
+					ctx.fillStyle = ball.color;
+					ctx.fill();
+					ctx.restore();
+				})
+				requestAnimationFrame(drawBall)
+			}
+		}
+	</script>
+</body>
+
+</html>
