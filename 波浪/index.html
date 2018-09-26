@@ -17,7 +17,6 @@
 <body>
 	<canvas id="cnv" width="600" height="600"></canvas>
 	<script>
-
 		function Vertex(x, y, baseY) {
 			this.x = x;
 			this.y = y;
@@ -27,12 +26,12 @@
 			this.deceleration = 0.95;
 			this.targetY = 0;
 		}
-		Vertex.prototype.updateY = function (diffY,i) {
+		Vertex.prototype.updateY = function (diffY, i) {
 			this.targetY = this.baseY + diffY;
+			var a = this.targetY - this.y;
 			this.vy += (this.targetY - this.y);
 			this.vy *= this.deceleration
 			this.y += this.vy * this.f;
-
 		}
 		var cnv = document.getElementById('cnv');
 		var ctx = cnv.getContext('2d');
@@ -86,10 +85,9 @@
 		var dd = 15;
 
 		//初始差分值
-		var autoDiff = 1000;
+		var autoDiff = 500;
 
 		function update() {
-			// 100  10 
 			autoDiff -= autoDiff * 0.9;
 			diffY[vpos] = autoDiff;
 			for (var i = vpos - 1; i > 0; i--) {
@@ -108,7 +106,7 @@
 				diffY[i] -= (diffY[i] - diffY[i - 1]) * (1 - 0.01 * d);
 			}
 			for (var i = 0; i < vertexs.length; i++) {
-				vertexs[i].updateY(diffY[i],i);
+				vertexs[i].updateY(diffY[i], i);
 			}
 		}
 
