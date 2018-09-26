@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title></title>
+	<style>
+		canvas {
+			width: 600px;
+			height: 600px;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="cnv" width="600" height="600"></canvas>
+	<script>
+
+		function Vertex(x, y, baseY) {
+			this.x = x;
+			this.y = y;
+			this.vy = 0;
+			this.baseY = baseY;
+			this.f = 0.15;
+			this.deceleration = 0.95;
+			this.targetY = 0;
+		}
+		Vertex.prototype.updateY = function (diffY,i) {
+			this.targetY = this.baseY + diffY;
+			this.vy += (this.targetY - this.y);
+			this.vy *= this.deceleration
+			this.y += this.vy * this.f;
+
+		}
+		var cnv = document.getElementById('cnv');
+		var ctx = cnv.getContext('2d');
+		var W = cnv.width;
+		var H = cnv.height;
+		var vertexs = [];
+		var verNum = 250;
+		var diffY = [];
+
+		var color1 = "#6ca0f6";
+		var color2 = "#367aec";
+
+		// 初始化波浪点
+		for (var i = 0; i < verNum; i++) {
+			var x = i * W / (verNum - 1);
+			vertexs.push(new Vertex(x, H / 2, H / 2));
+			diffY[i] = 0;
+		}
+
+		// 绘制波纹
+		function draw() {
+			ctx.save();
+			ctx.beginPath();
+			ctx.moveTo(0, H);
+			ctx.lineTo(vertexs[0].x, vertexs[0].y);
+			for (var i = 1; i < vertexs.length; i++) {
+				ctx.lineTo(vertexs[i].x, vertexs[i].y);
+			}
+			ctx.lineTo(W, H);
+			ctx.closePath();
+			ctx.fillStyle = color1;
+			ctx.fill();
+			ctx.restore();
+
+			ctx.save();
+			ctx.beginPath();
+			ctx.moveTo(0, H);
+			ctx.lineTo(vertexs[0].x, vertexs[0].y + 5);
+			for (var i = 1; i < vertexs.length; i++) {
+				ctx.lineTo(vertexs[i].x, vertexs[i].y + 5);
+			}
+			ctx.lineTo(W, H);
+			ctx.closePath();
+			ctx.fillStyle = color2;
+			ctx.fill();
+			ctx.restore();
+		}
+
+
+		var vpos = 125;
+		var dd = 15;
+
+		//初始差分值
+		var autoDiff = 1000;
+
+		function update() {
+			// 100  10 
+			autoDiff -= autoDiff * 0.9;
+			diffY[vpos] = autoDiff;
+			for (var i = vpos - 1; i > 0; i--) {
+				var d = vpos - i;
+				if (d > dd) {
+					d = dd;
+				}
+				diffY[i] -= (diffY[i] - diffY[i + 1]) * (1 - 0.01 * d);
+			}
+
+			for (var i = vpos + 1; i < diffY.length; i++) {
+				var d = i - vpos;
+				if (d > dd) {
+					d = dd;
+				}
+				diffY[i] -= (diffY[i] - diffY[i - 1]) * (1 - 0.01 * d);
+			}
+			for (var i = 0; i < vertexs.length; i++) {
+				vertexs[i].updateY(diffY[i],i);
+			}
+		}
+
+		function render() {
+			ctx.clearRect(0, 0, cnv.width, cnv.height);
+			update();
+			draw();
+			requestAnimationFrame(render)
+		}
+
+		render();
+	</script>
+</body>
+
+</html>
